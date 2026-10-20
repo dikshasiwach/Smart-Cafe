@@ -1,0 +1,218 @@
+<USER_REQUEST>
+# Complete Cafe Website Upgrade: Customer Login, OTP Verification, Separate Admin Panel, and Full-System Testing
+
+Work on my existing cafe website project in VS Code. First inspect the complete project, understand the current frontend, backend, database, APIs, and existing features, and then implement the requirements below.
+
+**This is an existing project, not a new project.** Preserve working features and existing data. Do not unnecessarily recreate the website or remove anything that already works. Implement the changes directly in the project files, connect all components properly, and test the complete system.
+
+## 1. Three Customer Entry Flows
+
+Create a smooth customer experience for three different types of users.
+
+### Flow A: Customer scanning a QR code at a cafe table
+- Every table must have a unique QR code.
+- Scanning the QR code should open the cafe website with the correct table ID.
+- Show the menu, categories, food images, prices, item descriptions, and add-to-cart buttons.
+- Automatically associate the cart and order with the scanned table.
+- Ask for the customer's phone number and verify it through OTP before the final order placement.
+- After successful verification, allow the customer to confirm the order.
+- Send the confirmed order to the backend and display it immediately on the admin dashboard.
+- Display an order number, order status, and confirmation message to the customer.
+- Prevent customers from changing the table ID through simple URL manipulation to impersonate another table without proper validation.
+
+### Flow B: Customer ordering online
+- Provide a clear online-ordering entry point on the homepage.
+- Allow customers to browse the menu, add items to the cart, change quantities, remove items, and view the complete bill.
+- Support the appropriate fulfilment options, such as takeaway or delivery, based on the cafe's existing capabilities.
+- Collect the necessary customer details for the selected fulfilment method.
+- Verify the customer's phone number through OTP before final order placement.
+- Only create a confirmed order after successful verification and server-side validation.
+- Send the order to the same admin dashboard used for table orders.
+- Clearly distinguish online, takeaway, delivery, and table orders.
+
+### Flow C: Customer making a table reservation
+- Create or improve a table reservation page.
+- Collect the customer's name, phone number, reservation date, time, guest count, and any optional special requests.
+- Show available reservation slots based on actual availability in the database.
+- Verify the phone number through OTP before confirming the reservation.
+- Recheck table or slot availability on the backend immediately before saving the reservation.
+- Prevent duplicate bookings and double-booking of the same table or capacity.
+- Once confirmed, generate a reservation reference number and display the booking details.
+- Send the reservation to the admin dashboard immediately.
+- Allow customers to view their reservation status and cancellation instructions.
+
+## 2. Secure Phone Number and OTP Verification
+
+Implement real phone OTP verification for all three flows.
+
+Requirements:
+- Use a reliable SMS OTP provider, such as Firebase Phone Authentication or an appropriate SMS gateway.
+- Keep OTP verification credentials and secrets on the server or in the provider's secure configuration.
+- Never use a hardcoded OTP, a fake successful verification response, or frontend-only verification in production.
+- Include OTP expiry, resend cooldown, request limits, attempt limits, and basic abuse protection.
+- Normalize and validate phone numbers, including the country code.
+- Ensure that an order or reservation cannot be finalized by bypassing the OTP screen or calling the API directly.
+- Verify the authentication result on the backend before accepting the final order or reservation.
+- Prevent duplicate submissions and repeated order creation when the customer clicks the confirmation button multiple times.
+- Display useful messages for invalid, expired, or incorrect OTPs and SMS delivery failures.
+
+Keep the website usable during development by documenting how to configure a legitimate provider's test environment. Do not claim real SMS verification works until the provider is configured and successfully tested.
+
+## 3. Create a Completely Separate Admin Panel
+
+Create a separate admin application or protected admin area with its own route, layout, authentication, and permissions. It must not appear as a normal customer page or be accessible through ordinary customer navigation.
+
+Example routes:
+
+- Customer website: `/`
+- Admin login: `/admin/login`
+- Admin dashboard: `/admin/dashboard`
+
+Use separate layouts and navigation for customers and administrators. If practical, support deploying the admin application separately from the customer website.
+
+### Admin login and security
+- Create a dedicated admin login screen.
+- Require authenticated administrator accounts.
+- Implement secure server-side authorization and role-based permissions.
+- Do not rely on hiding the admin URL or using frontend-only password checks.
+- Never hardcode admin credentials into the frontend.
+- Protect all admin API endpoints and sensitive data.
+- Provide secure logout, session expiry, and appropriate password-reset procedures.
+- Keep customer accounts and administrator accounts logically separated.
+- Add an option to restrict admin access to approved devices or an allowlisted network where feasible, without treating device identification alone as authentication.
+
+**Important:** I want to keep the admin panel accessible only on specific computer systems that I authorize. Implement a practical security design using authenticated admin accounts plus a configurable access restriction, such as a VPN or network allowlist. Explain the setup required for computers on different networks. Do not assume that hiding a page or saving a browser password is sufficient security.
+
+## 4. Live Admin Dashboard
+
+The admin panel must use the same backend and database as the customer website. Orders and reservations must never be stored only in frontend state or localStorage.
+
+Build a dashboard containing:
+
+### Order management
+- Display every successfully placed order.
+- Show order ID, order type, table number when applicable, customer name, phone number, items, quantities, item prices, subtotal, taxes, discounts, total, payment status, order time, and fulfilment details where applicable.
+- Distinguish QR table orders from online orders.
+- Show new orders prominently.
+- Update order statuses, for example: Received, Accepted, Preparing, Ready, Completed, and Cancelled.
+- Update the customer's order-status view when the status changes.
+- Prevent unauthorized or invalid status transitions.
+- Include search, filters, date ranges, and sorting.
+- Allow staff to open an order to see its full details.
+- Provide sound or visual notifications for new orders, with an option to disable sound.
+- Support real-time updates using WebSockets, Server-Sent Events, or a reliable polling fallback.
+- Ensure an order appears only once, even if events or requests are repeated.
+
+### Reservation management
+- Display all new and existing reservations.
+- Show reservation ID, customer details, date, time, guest count, table assignment, and special requests.
+- Allow authorized staff to confirm, reject, modify, or cancel reservations.
+- Show pending, confirmed, seated, completed, and cancelled states as appropriate.
+- Prevent conflicting reservations and maintain accurate table availability.
+- Reflect reservation changes on the customer-facing website.
+
+### Menu and cafe management
+Where consistent with the existing project, add admin functionality for:
+- Adding, editing, and removing menu items.
+- Updating prices, descriptions, images, categories, and availability.
+- Marking items as temporarily unavailable.
+- Managing table records and generating table-specific QR codes.
+- Viewing basic daily orders, revenue, and reservation summaries.
+- Managing authorized staff accounts and roles.
+
+All administrative actions must be validated and saved through protected backend APIs.
+
+## 5. Database and Backend Integrity
+
+Inspect the existing database and improve its schema if necessary. Reuse the current database where possible.
+
+Ensure appropriate relationships between:
+- Customers and verified phone numbers.
+- Orders and order items.
+- Table records and table orders.
+- Reservations and table availability.
+- Menu categories and menu items.
+- Payments and their associated orders, if payment integration exists.
+- Administrators, roles, and audit records.
+
+Requirements:
+- Store prices and order totals as reliable numeric or integer minor-unit values, not floating-point calculations.
+- Calculate the final bill on the backend using trusted menu prices.
+- Never trust prices, totals, role information, or verification status sent by the frontend.
+- Use database transactions where needed to prevent inconsistent orders and reservation conflicts.
+- Add appropriate validation, indexes, error handling, and database migrations.
+- Do not delete existing data during schema updates.
+- Keep sensitive customer information accessible only to authorized users.
+- Record important admin actions in an audit log.
+- Use secure environment variables for database credentials and API keys.
+
+## 6. Complete Website Recheck
+
+After implementation, recheck the entire project from start to finish.
+
+Audit and fix:
+- Broken links, navigation, routes, imports, and missing files.
+- Responsive design on desktop, tablet, and mobile.
+- Menu category navigation and food-item scrolling.
+- Cart quantity controls and calculations.
+- QR table identification.
+- Phone number and OTP verification.
+- Online order creation and duplicate prevention.
+- Reservation availability and double-booking prevention.
+- Backend API validation and database persistence.
+- Gemini AI chatbot integration and its error handling.
+- Admin authentication, authorization, and access restrictions.
+- Live order and reservation updates.
+- Order status transitions and customer status displays.
+- Loading indicators, empty states, and error messages.
+- Security issues, exposed secrets, and unauthorized API access.
+- Build errors, lint errors, failed tests, and browser console errors.
+
+Do not merely inspect the code and report that it looks correct. Run the available tests, build the application, start the services where possible, and fix reproducible issues. Never claim that something passed if it was not tested.
+
+## 7. Test These End-to-End Scenarios
+
+1. Scan a table QR code, select food, verify OTP, place an order, and confirm it appears on the admin dashboard.
+2. Place an online order, verify OTP, submit it, and confirm the correct order type and details appear in the dashboard.
+3. Try to submit an order without OTP verification and confirm the backend rejects it.
+4. Make a reservation, verify OTP, and confirm that the admin dashboard receives it.
+5. Attempt a conflicting reservation and confirm that the backend prevents double-booking.
+6. Change an order status in the admin panel and confirm the customer sees the updated status.
+7. Refresh the browser and verify that saved orders and reservations remain in the database.
+8. Try to open protected admin APIs without authorization and confirm access is denied.
+9. Try duplicate submissions and confirm that they do not create duplicate orders.
+10. Test invalid OTPs, expired OTPs, rate limits, network failures, and missing API keys.
+11. Test the application at common mobile and desktop screen sizes.
+12. Verify that menu changes made by the administrator appear correctly on the customer website.
+
+Create automated tests for important backend rules and integration flows where feasible. If a real SMS provider, payment gateway, or external service cannot be tested without credentials, document the exact limitation and provide a safe test procedure.
+
+## 8. Final Local Setup and Deliverables
+
+Keep the complete project organized in my existing laptop workspace so that I can open it in VS Code.
+
+Provide:
+- The final folder structure.
+- All changed and newly created files.
+- Updated database migrations and setup instructions.
+- A `.env.example` file without real secrets.
+- A README with exact installation and startup commands.
+- Instructions for configuring the SMS OTP provider, Gemini API, database, and other required services.
+- Instructions for starting the customer frontend, backend, and admin panel.
+- Instructions for generating and printing table QR codes.
+- Instructions for restricting admin access to my approved computers.
+- Actual build and test results, including any failed tests.
+- A list of remaining manual setup steps.
+- The verified local URLs for the customer website and admin panel.
+
+Do not deploy publicly unless I explicitly ask you to.
+
+### Final instruction
+
+Work systematically: inspect first, implement second, test third, and report last. Make changes directly in the existing project workspace. Preserve working functionality and existing data. Do not replace real integrations with mock functionality merely to make a demo appear successful.
+
+**My final goal is a fully connected cafe management system: customers can scan QR codes, order online, or reserve tables; all customers verify their phone number through OTP before final confirmation; and a separate, securely protected admin panel receives and manages real orders and reservations in real time.**
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-14T22:27:12+05:30.
+</ADDITIONAL_METADATA>
