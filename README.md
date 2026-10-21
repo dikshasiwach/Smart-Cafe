@@ -1,6 +1,6 @@
 # ☕ Smart Café — Complete Real-World Café Management System
 
-A production-grade, full-stack café website and operations management system engineered with **React + TypeScript + Vite**, **Tailwind CSS**, **Node.js + Express**, **SQLite / PostgreSQL**, **Socket.io**, **Google Gemini AI**, **Razorpay Payments**, and **Secure Phone OTP Authentication**.
+A production-grade, full-stack café website and operations management system engineered with **React + TypeScript + Vite**, **Tailwind CSS**, **Node.js + Express**, **SQLite / PostgreSQL**, **Socket.io**, **Google Gemini AI** , and **Secure Phone OTP Authentication**.
 
 Built with three distinct customer experiences, tamper-proof QR table ordering, phone OTP verification across all checkout flows, an isolated and network-restricted admin panel with device authorization, live kitchen audio alerts, and an offline-capable admin Progressive Web App (PWA).
 
@@ -51,8 +51,7 @@ All customer checkout and reservation flows mandate server-verified mobile OTPs 
 
 ### Supported SMS Providers (`OTP_PROVIDER` in `server/.env`):
 - **`mock` (Default Dev Mode)**: Prints the 6-digit verification code to the backend terminal and provides an instant 1-click test button in the UI for effortless local testing.
-- **`fast2sms`**: Production SMS gateway for Indian mobile numbers (+91).
-- **`twilio`**: Global SMS gateway for international mobile numbers.
+- **`2factor`**: Production SMS gateway for Indian mobile numbers (+91).
 
 ---
 
@@ -105,7 +104,7 @@ For remote café owners managing multiple outlets securely without exposing admi
 | **Real-time** | Socket.io bi-directional event broadcaster |
 | **AI Assistant** | Google Gemini API (`@google/generative-ai`) with database-grounded system prompts |
 | **Payments** | Razorpay Node.js SDK with server HMAC-SHA256 signature verification |
-| **Phone OTP** | Multi-provider service (Mock/Dev, Fast2SMS, Twilio) with single-use JWT verification |
+| **Phone OTP** | Multi-provider service (Mock/Dev, 2factor ) with single-use JWT verification |
 | **QR Engine** | Dynamic vector SVG & PNG QR generation with cryptographic table tokens |
 | **Offline PWA** | Service Worker + IndexedDB action queue with automatic background reconciliation |
 
@@ -275,7 +274,7 @@ project/
 │   │   │   ├── tables.ts                # Table occupancy & tamper-proof QR verification
 │   │   │   ├── orders.ts                # Atomic order placement & strict status transitions
 │   │   │   ├── reservations.ts          # Atomic capacity reservation & conflict prevention
-│   │   │   ├── payments.ts              # Razorpay checkout & signature verification
+│   │   │   ├── payments.ts              # Razorpay checkout & verification.
 │   │   │   ├── reviews.ts               # Review submission & moderation
 │   │   │   ├── analytics.ts             # Sales, revenue & channel analytics
 │   │   │   └── chatbot.ts               # Gemini AI assistant with menu context
